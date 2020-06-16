@@ -1,5 +1,9 @@
 extends KinematicBody2D
 
+const ACCELERATION = 10
+const MAX_SPEED = 100
+const FRICTION = 10
+
 var velocity = Vector2.ZERO
 
 # Called when the node enters the scene tree for the first time.
@@ -16,9 +20,15 @@ func _physics_process(delta):
 	#This method is more efficient than 4 or so lines of if and else if 
 	#since it uses 2 lines of code rather than 8
 	
+	input_vector = input_vector.normalized()
+	#This line makes it so that moving in the diagnols is the same speed as moving horizonally
+	
 	if input_vector != Vector2.ZERO:
-		velocity = input_vector
+		velocity += input_vector * ACCELERATION * delta
+		velocity = velocity.clamped(MAX_SPEED * delta)
 	else:
-		velocity = Vector2.ZERO
+		velocity = velocity.move_toward(Vector2.ZERO, FRICTION * delta)
 	
 	move_and_collide(velocity)
+	# "* delta" makes it so that movement speed is not tied to frame rate.
+	#it changes movement from pixels per frame to x amount of time per frame
