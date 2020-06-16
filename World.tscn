@@ -20,7 +20,3 @@ __meta__ = {
 [node name="Sprite" type="Sprite" parent="Player"]
 texture = ExtResource( 2 )
 hframes = 60
-
-[node name="Sprite2" type="Sprite" parent="Player"]
-texture = ExtResource( 2 )
-hframes = 60
