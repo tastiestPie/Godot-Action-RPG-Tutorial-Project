@@ -1,9 +1,9 @@
 extends KinematicBody2D
 
-const ACCELERATION = 500
-const MAX_SPEED = 80
-const FRICTION = 500
-const ROLL_SPEED = 120
+export var ACCELERATION = 500
+export var MAX_SPEED = 80
+export var FRICTION = 500
+export var ROLL_SPEED = 120
 
 enum {
 	MOVE,
@@ -13,15 +13,20 @@ enum {
 
 var velocity = Vector2.ZERO
 var state = MOVE
-var roll_vector = Vector2.LEFT
+var roll_vector = Vector2.DOWN
+var stats = PlayerStats
 
 onready var animationPlayer = $AnimationPlayer
 # the $ symbol connects a specific node to the script.
 onready var animationTree = $AnimationTree
 onready var animationState = animationTree.get("parameters/playback")
+onready var swordHitbox = $HitboxPivot/SwordHitbox
+onready var hurtbox = $Hurtbox
 
 func _ready():
+	stats.connect("no_health", self, "queue_free")
 	animationTree.active = true
+	swordHitbox.knockback_vector = roll_vector
 # Called when the node enters the scene tree for the first time.
 func _physics_process(delta):
 	match state:
@@ -52,6 +57,7 @@ func move_state(delta):
 	
 	if input_vector != Vector2.ZERO:
 		roll_vector = input_vector
+		swordHitbox.knockback_vector = input_vector
 		animationTree.set("parameters/Idle/blend_position", input_vector)
 		animationTree.set("parameters/Run/blend_position", input_vector)
 		animationTree.set("parameters/Attack/blend_position", input_vector)
@@ -94,3 +100,8 @@ func roll_animation_finished():
 
 func attack_animation_finished():
 	state = MOVE
+
+func _on_Hurtbox_area_entered(area):
+	stats.health -= 1
+	hurtbox.start_invincibility(0.5)
+	hurtbox.create_hit_effect()
